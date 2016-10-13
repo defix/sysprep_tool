@@ -49,3 +49,5 @@ Temporary Items
 # AU3 工作目录临时文件
 *.bak
 *.exe
+*BackUp/
+sysprep_tool_step1_[AMF.bak]/
