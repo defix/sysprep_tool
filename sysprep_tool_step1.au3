@@ -231,6 +231,7 @@ Func _Submit()
 				$aNicconfig[9][3] & "', '" & $aNicconfig[9][4] & "', '" & $aNicconfig[9][0] & "', '" & $aNicconfig[9][2] & "', '" & $aNicconfig[9][1] & "', '" & $aNicconfig[9][5] & "'")
 		If $bSQL Then
 			MsgBox(0, "成功", "信息已写入数据库，请勿重复提交")
+			FileDelete("info.txt")
 			Exit
 		Else
 			MsgBox(0, "添加记录失败", "添加记录失败，请重试！")

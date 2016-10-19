@@ -51,3 +51,4 @@ Temporary Items
 *.exe
 *BackUp/
 sysprep_tool_step1_[AMF.bak]/
+info.txt
