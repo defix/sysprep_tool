@@ -232,6 +232,7 @@ Func _Submit()
 		If $bSQL Then
 			MsgBox(0, "成功", "信息已写入数据库，请勿重复提交")
 			FileDelete("info.txt")
+			FileWrite("info.txt", GUICtrlRead($idOutput) & @CRLF)
 			Exit
 		Else
 			MsgBox(0, "添加记录失败", "添加记录失败，请重试！")
