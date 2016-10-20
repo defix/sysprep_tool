@@ -228,7 +228,8 @@ Func _Submit()
 				$aNicconfig[6][3] & "', '" & $aNicconfig[6][4] & "', '" & $aNicconfig[6][0] & "', '" & $aNicconfig[6][2] & "', '" & $aNicconfig[6][1] & "', '" & $aNicconfig[6][5] & "', '" & _
 				$aNicconfig[7][3] & "', '" & $aNicconfig[7][4] & "', '" & $aNicconfig[7][0] & "', '" & $aNicconfig[7][2] & "', '" & $aNicconfig[7][1] & "', '" & $aNicconfig[7][5] & "', '" & _
 				$aNicconfig[8][3] & "', '" & $aNicconfig[8][4] & "', '" & $aNicconfig[8][0] & "', '" & $aNicconfig[8][2] & "', '" & $aNicconfig[8][1] & "', '" & $aNicconfig[8][5] & "', '" & _
-				$aNicconfig[9][3] & "', '" & $aNicconfig[9][4] & "', '" & $aNicconfig[9][0] & "', '" & $aNicconfig[9][2] & "', '" & $aNicconfig[9][1] & "', '" & $aNicconfig[9][5] & "'")
+				$aNicconfig[9][3] & "', '" & $aNicconfig[9][4] & "', '" & $aNicconfig[9][0] & "', '" & $aNicconfig[9][2] & "', '" & $aNicconfig[9][1] & "', '" & $aNicconfig[9][5] & "', '" & _
+				@YEAR & "-" & @MON & "-" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC & "'")
 		If $bSQL Then
 			MsgBox(0, "成功", "信息已写入数据库，请勿重复提交")
 			FileDelete("info.txt")
