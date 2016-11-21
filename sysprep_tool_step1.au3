@@ -35,7 +35,7 @@ Exit
 
 Func SJYHXX()
 	#Region ### START Koda GUI section ### Form=
-	$hForm1 = GUICreate("收集用户信息", 346, 551, -1, -1, BitOR($GUI_SS_DEFAULT_GUI, $WS_MAXIMIZEBOX, $WS_TABSTOP))
+	$hForm1 = GUICreate("收集用户信息", 346, 499, -1, -1, BitOR($GUI_SS_DEFAULT_GUI, $WS_MAXIMIZEBOX, $WS_TABSTOP))
 	GUISetBkColor(0xFFFBF0)
 	$idDepartment = GUICtrlCreateCombo("", 112, 120, 209, 25, BitOR($GUI_SS_DEFAULT_COMBO, $CBS_SIMPLE))
 	GUICtrlSetData(-1, $aCombo_ou_list)
@@ -122,7 +122,7 @@ EndFunc   ;==>WM_COMMAND
 
 Func CLYHXX()
 	#Region ### START Koda GUI section ### Form=
-	$hForm2 = GUICreate("处理用户信息", 346, 451, 731, 336, BitOR($GUI_SS_DEFAULT_GUI, $WS_MAXIMIZEBOX, $WS_TABSTOP))
+	$hForm2 = GUICreate("处理用户信息", 346, 451, -1, -1, BitOR($GUI_SS_DEFAULT_GUI, $WS_MAXIMIZEBOX, $WS_TABSTOP))
 	GUISetBkColor(0xFFFBF0)
 	$idNext = GUICtrlCreateButton("提交", 248, 408, 75, 33)
 	GUICtrlSetFont(-1, 12, 400, 0, "MS Sans Serif")
