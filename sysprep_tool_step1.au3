@@ -1,4 +1,5 @@
 #NoTrayIcon
+#RequireAdmin
 #include <ButtonConstants.au3>
 #include <ComboConstants.au3>
 #include <EditConstants.au3>
