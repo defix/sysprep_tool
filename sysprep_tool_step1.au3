@@ -28,6 +28,7 @@ Global $cSQL
 Global $idNext
 Global $aNicconfig
 Global $hostname
+Global $domain
 Global $oMyError
 
 SJYHXX()
@@ -53,6 +54,9 @@ Func SJYHXX()
 	GUICtrlSetFont(-1, 12, 400, 0, "宋体")
 	$idTelephone = GUICtrlCreateEdit("", 161, 408, 161, 27, BitOR($ES_WANTRETURN, $ES_NUMBER))
 	GUICtrlSetFont(-1, 12, 400, 0, "宋体")
+	$idDomain = GUICtrlCreateCombo("", 24, 456, 200, 25, BitOR($GUI_SS_DEFAULT_COMBO, $CBS_SIMPLE))
+	GUICtrlSetData(-1, "nd.local|yzd.zhng.org")
+	GUICtrlSetFont(-1, 11, 400, 0, "宋体")
 	$idNext = GUICtrlCreateButton("下一步", 248, 456, 75, 33)
 	GUICtrlSetFont(-1, 12, 400, 0, "宋体")
 	GUICtrlCreatePic("D:\Users\yang\Documents\GitHub\sysprep_tool\logo.bmp", 24, 8, 76, 100, BitOR($GUI_SS_DEFAULT_PIC, $WS_TABSTOP))
@@ -92,7 +96,8 @@ Func SJYHXX()
 				$hostname = GUICtrlRead($idHostname)
 				$mobile = GUICtrlRead($idMobile)
 				$telephone = "0951-" & GUICtrlRead($idTelephone)
-				If ($department = "" Or $displayname = "" Or $username = "" Or $title = "" Or $mobile = "" Or $telephone = "0951-") Then
+				$domain = GUICtrlRead($idDomain)
+				If ($department = "" Or $displayname = "" Or $username = "" Or $title = "" Or $mobile = "" Or $telephone = "0951-" Or $domain = "") Then
 					MsgBox(0, "请填写完整信息", "请填写完整信息，不要留空，谢谢！")
 				Else
 					GUIDelete($hForm1)
@@ -144,13 +149,8 @@ Func CLYHXX()
 			Case $GUI_EVENT_CLOSE
 				Exit
 			Case $idNext
-				If 0 Or $username = "" Then
-					$username = InputBox("用户名冲突", "用户名 " & $username & " 与现有用户冲突，请输入新的用户名。", $username)
-					_UpdateOutput()
-				Else
-					GUICtrlSetState($idNext, $GUI_DISABLE)
-					_Submit()
-				EndIf
+				GUICtrlSetState($idNext, $GUI_DISABLE)
+				_Submit()
 		EndSwitch
 	WEnd
 
@@ -159,6 +159,7 @@ EndFunc   ;==>CLYHXX
 Func _UpdateOutput()
 	$department = StringStripCR($aCombo_ou_list_to_OU[_ArraySearch($aCombo_ou_list_to_OU, $department)][1])
 	GUICtrlSetData($idOutput, _
+			"　　　域：" & $domain & @CRLF & _
 			"部　　门：" & StringTrimRight(StringReplace($department, "OU=", ""), 15) & @CRLF & _
 			"姓　　名：" & $displayname & @CRLF & _
 			"账　　号：" & $username & @CRLF & _
@@ -211,7 +212,7 @@ EndFunc   ;==>_Get_NIC_config
 Func _Submit()
 	$cSQL = _MSSQL_Con($sql_ip, $sql_user, $sql_pw, $sql_db)
 	$oMyError = ObjEvent("AutoIt.Error", "MyErrFunc")
-	Local $existUsername = _MSSQL_GetRecord($cSQL, "allinfo", "department", "WHERE username='" & $username & "'", "department")
+	Local $existUsername = _MSSQL_GetRecord($cSQL, "allinfo", "department", "WHERE username='" & $username & "' AND domain='" & $domain & "'", "department")
 	If $existUsername <> "" Then
 		$username = InputBox("账号重复", "账号" & $username & "已经存在在系统中，请换一个用户名。", $username)
 		_UpdateOutput()
@@ -225,6 +226,7 @@ Func _Submit()
 				$title & "', '" & _
 				$mobile & "', '" & _
 				$telephone & "', '" & _
+				$domain & "', '" & _
 				$aNicconfig[1][3] & "', '" & $aNicconfig[1][4] & "', '" & $aNicconfig[1][0] & "', '" & $aNicconfig[1][2] & "', '" & $aNicconfig[1][1] & "', '" & $aNicconfig[1][5] & "', '" & _
 				$aNicconfig[2][3] & "', '" & $aNicconfig[2][4] & "', '" & $aNicconfig[2][0] & "', '" & $aNicconfig[2][2] & "', '" & $aNicconfig[2][1] & "', '" & $aNicconfig[2][5] & "', '" & _
 				$aNicconfig[3][3] & "', '" & $aNicconfig[3][4] & "', '" & $aNicconfig[3][0] & "', '" & $aNicconfig[3][2] & "', '" & $aNicconfig[3][1] & "', '" & $aNicconfig[3][5] & "', '" & _
@@ -238,6 +240,7 @@ Func _Submit()
 		If $bSQL Then
 			MsgBox(0, "成功", "信息已写入数据库，请勿重复提交")
 			FileDelete("info.ini")
+			IniWrite("info.ini", "UserInfo", "domain", $domain)
 			IniWrite("info.ini", "UserInfo", "department", $department)
 			IniWrite("info.ini", "UserInfo", "displayname", $displayname)
 			IniWrite("info.ini", "UserInfo", "username", $username)
