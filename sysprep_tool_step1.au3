@@ -19,6 +19,7 @@ Global $username
 Global $title
 Global $mobile
 Global $telephone
+Global $aNicconfig = _NetworkAdapterInfo()
 Global $sNicconfig
 Global $sql_ip
 Global $sql_user
@@ -26,7 +27,6 @@ Global $sql_pw
 Global $sql_db
 Global $cSQL
 Global $idNext
-Global $aNicconfig
 Global $hostname
 Global $domain
 Global $oMyError
@@ -103,7 +103,6 @@ Func SJYHXX()
 					GUIDelete($hForm1)
 					ExitLoop
 				EndIf
-			Case $idDisplayname
 		EndSwitch
 	WEnd
 EndFunc   ;==>SJYHXX
@@ -141,8 +140,8 @@ Func CLYHXX()
 	GUISetState(@SW_SHOW)
 	#EndRegion ### END Koda GUI section ###
 
-	_Get_NIC_config()
 	_UpdateOutput()
+	
 	While 1
 		$nMsg = GUIGetMsg()
 		Switch $nMsg
@@ -158,56 +157,114 @@ EndFunc   ;==>CLYHXX
 
 Func _UpdateOutput()
 	$department = StringStripCR($aCombo_ou_list_to_OU[_ArraySearch($aCombo_ou_list_to_OU, $department)][1])
+	$sNicconfig = ""
+	For $i = 1 To $aNicconfig[0][0] Step 1
+		$sNicconfig &= "网卡" & $aNicconfig[$i][0] & "：" & @CRLF & "　　Model：" & $aNicconfig[$i][1] & @CRLF & "　　IP：" & $aNicconfig[$i][2] & @CRLF & "　　Subnet：" & $aNicconfig[$i][3] & @CRLF & "　　Gateway：" & $aNicconfig[$i][4] & "　　Mitic：" & $aNicconfig[$i][5] & @CRLF & "　　DNSs：" & $aNicconfig[$i][6] & @CRLF & "　　MAC：" & $aNicconfig[$i][7] & @CRLF
+	Next
 	GUICtrlSetData($idOutput, _
-			"　　　域：" & $domain & @CRLF & _
-			"部　　门：" & StringTrimRight(StringReplace($department, "OU=", ""), 15) & @CRLF & _
-			"姓　　名：" & $displayname & @CRLF & _
-			"账　　号：" & $username & @CRLF & _
-			"主　　机：" & $hostname & @CRLF & _
-			"职　　务：" & $title & @CRLF & _
-			"手　　机：" & $mobile & @CRLF & _
-			"固定电话：" & $telephone & @CRLF & _
+			"　域：" & $domain & @CRLF & _
+			"部门：" & StringTrimRight(StringReplace($department, "OU=", ""), 15) & @CRLF & _
+			"姓名：" & $displayname & @CRLF & _
+			"账号：" & $username & @CRLF & _
+			"主机：" & $hostname & @CRLF & _
+			"职务：" & $title & @CRLF & _
+			"手机：" & $mobile & @CRLF & _
+			"座机：" & $telephone & @CRLF & _
 			$sNicconfig)
 EndFunc   ;==>_UpdateOutput
 
-Func _Get_NIC_config()
-	Local $iPID = Run(@ComSpec & " /c wmic NICCONFIG WHERE IPEnabled=true GET IPaddress,MACAddress,DefaultIPGateway,IPSubnet,DNSServerSearchOrder,GatewayCostMetric", "", @SW_HIDE, $STDOUT_CHILD)
-	ProcessWaitClose($iPID)
-	$sNicconfig = StdoutRead($iPID)
-	Global $aNicconfig[10][6] = [ _
-			[StringInStr($sNicconfig, "DefaultIPGateway"), StringInStr($sNicconfig, "DNSServerSearchOrder"), StringInStr($sNicconfig, "GatewayCostMetric"), StringInStr($sNicconfig, "IPAddress"), StringInStr($sNicconfig, "IPSubnet"), StringInStr($sNicconfig, "MACAddress")], _
-			[Null, Null, Null, Null, Null, Null], _
-			[Null, Null, Null, Null, Null, Null], _
-			[Null, Null, Null, Null, Null, Null], _
-			[Null, Null, Null, Null, Null, Null], _
-			[Null, Null, Null, Null, Null, Null], _
-			[Null, Null, Null, Null, Null, Null], _
-			[Null, Null, Null, Null, Null, Null], _
-			[Null, Null, Null, Null, Null, Null], _
-			[Null, Null, Null, Null, Null, Null]]
-	Local $pCRLF = StringInStr($sNicconfig, @CRLF)
-	$sNicconfig = StringTrimLeft($sNicconfig, $pCRLF)
-	Local $i = 0
-	While $pCRLF
-		$i += 1
-		$pCRLF = StringInStr($sNicconfig, @CRLF)
-		$aNicconfig[$i][0] = StringReplace(StringReplace(StringReplace(StringReplace(StringReplace(StringReplace(StringMid($sNicconfig, $aNicconfig[0][0], $aNicconfig[0][1] - $aNicconfig[0][0]), '"', ''), '{', ''), '}', ''), Chr(13), ''), Chr(10), ''), Chr(32), '')
-		$aNicconfig[$i][1] = StringReplace(StringReplace(StringReplace(StringReplace(StringReplace(StringReplace(StringMid($sNicconfig, $aNicconfig[0][1], $aNicconfig[0][2] - $aNicconfig[0][1]), '"', ''), '{', ''), '}', ''), Chr(13), ''), Chr(10), ''), Chr(32), '')
-		$aNicconfig[$i][2] = StringReplace(StringReplace(StringReplace(StringReplace(StringReplace(StringReplace(StringMid($sNicconfig, $aNicconfig[0][2], $aNicconfig[0][3] - $aNicconfig[0][2]), '"', ''), '{', ''), '}', ''), Chr(13), ''), Chr(10), ''), Chr(32), '')
-		$aNicconfig[$i][3] = StringReplace(StringReplace(StringReplace(StringReplace(StringReplace(StringReplace(StringMid($sNicconfig, $aNicconfig[0][3], $aNicconfig[0][4] - $aNicconfig[0][3]), '"', ''), '{', ''), '}', ''), Chr(13), ''), Chr(10), ''), Chr(32), '')
-		$aNicconfig[$i][4] = StringReplace(StringReplace(StringReplace(StringReplace(StringReplace(StringReplace(StringMid($sNicconfig, $aNicconfig[0][4], $aNicconfig[0][5] - $aNicconfig[0][4]), '"', ''), '{', ''), '}', ''), Chr(13), ''), Chr(10), ''), Chr(32), '')
-		$aNicconfig[$i][5] = StringReplace(StringReplace(StringReplace(StringReplace(StringReplace(StringReplace(StringMid($sNicconfig, $aNicconfig[0][5], $pCRLF - $aNicconfig[0][5]), '"', ''), '{', ''), '}', ''), Chr(13), ''), Chr(10), ''), Chr(32), '')
-		$sNicconfig = StringTrimLeft($sNicconfig, $pCRLF)
-	WEnd
-	$sNicconfig = ""
-	$i = 1
-	While $i <= 9
-		If $aNicconfig[$i][3] <> "" Then
-			$sNicconfig &= "网卡" & $i & ":　IP:" & $aNicconfig[$i][3] & @CRLF & "　　　　Subnet:" & $aNicconfig[$i][4] & @CRLF & "　　　　Gateway:" & $aNicconfig[$i][0] & "　Mitic:" & $aNicconfig[$i][2] & @CRLF & "　　　　DNSs:" & $aNicconfig[$i][1] & @CRLF & "　　　　MAC:" & $aNicconfig[$i][5] & @CRLF
-		EndIf
-		$i += 1
-	WEnd
-EndFunc   ;==>_Get_NIC_config
+Func _NetworkAdapterInfo()
+	Local $colItems = ""
+	Local $objWMIService
+	Local $NIC_ID = 0
+	Local $NIC_Model = ""
+	Local $NIC_Gateway = ""
+	Local $NIC_HostName = ""
+	Local $NIC_IP = ""
+	Local $NIC_DNS1 = ""
+	Local $NIC_DNS2 = ""
+	Local $NIC_Subnet = ""
+	Local $NIC_MAC = ""
+	Local $NIC_NetConnectionID = ""
+	Local $NIC_Info[10][8] ;最高9块网卡.
+	$NIC_Info[0][0] = 0
+	$NIC_Info[0][1] = "Model"
+	$NIC_Info[0][2] = "IP"
+	$NIC_Info[0][3] = "Subnet"
+	$NIC_Info[0][4] = "Gateway"
+	$NIC_Info[0][5] = "GWMetric"
+	$NIC_Info[0][6] = "DNS"
+	$NIC_Info[0][7] = "MAC"
+	$objWMIService = ObjGet("winmgmts:\\localhost\root\CIMV2")
+	$colItems = $objWMIService.ExecQuery("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled != 0", "WQL", 0x10 + 0x20)
+	If IsObj($colItems) Then
+		For $objItem In $colItems
+			$NIC_Model = $objItem.Description
+			$NIC_IP = $objItem.IPAddress
+			$NIC_Subnet = $objItem.IPSubnet
+			$NIC_Gateway = $objItem.DefaultIPGateway
+			$NIC_GWMetric = $objItem.GatewayCostMetric
+			$NIC_DNS = $objItem.DNSServerSearchOrder
+			$NIC_MAC = $objItem.MACAddress
+			If IsArray($NIC_IP) Then
+				Local $sTemp1 = ""
+				For $sTemp2 In $NIC_IP
+					If Not StringInStr($sTemp2, ":") Then
+						$sTemp1 &= $sTemp2 & ","
+					EndIf
+				Next
+				$NIC_IP = StringTrimRight($sTemp1, 1)
+			EndIf
+			If IsArray($NIC_Subnet) Then
+				Local $sTemp1 = ""
+				For $sTemp2 In $NIC_Subnet
+					If StringInStr($sTemp2, ".") Then
+						$sTemp1 &= $sTemp2 & ","
+					EndIf
+				Next
+				$NIC_Subnet = StringTrimRight($sTemp1, 1)
+			EndIf
+			If IsArray($NIC_Gateway) Then
+				Local $sTemp1 = ""
+				For $sTemp2 In $NIC_Gateway
+					If Not StringInStr($sTemp2, ":") Then
+						$sTemp1 &= $sTemp2 & ","
+					EndIf
+				Next
+				$NIC_Gateway = StringTrimRight($sTemp1, 1)
+			EndIf
+			If IsArray($NIC_GWMetric) Then
+				Local $sTemp1 = ""
+				For $sTemp2 In $NIC_GWMetric
+					$sTemp1 &= $sTemp2 & ","
+				Next
+				$NIC_GWMetric = StringTrimRight($sTemp1, 1)
+			EndIf
+			If IsArray($NIC_DNS) Then
+				Local $sTemp1 = ""
+				For $sTemp2 In $NIC_DNS
+					If Not StringInStr($sTemp2, ":") Then
+						$sTemp1 &= $sTemp2 & ","
+					EndIf
+				Next
+				$NIC_DNS = StringTrimRight($sTemp1, 1)
+			EndIf
+			$NIC_ID += 1
+			$NIC_Info[0][0] = $NIC_ID
+			$NIC_Info[$NIC_ID][0] = $NIC_ID
+			$NIC_Info[$NIC_ID][1] = $NIC_Model
+			$NIC_Info[$NIC_ID][2] = $NIC_IP
+			$NIC_Info[$NIC_ID][3] = $NIC_Subnet
+			$NIC_Info[$NIC_ID][4] = $NIC_Gateway
+			$NIC_Info[$NIC_ID][5] = $NIC_GWMetric
+			$NIC_Info[$NIC_ID][6] = $NIC_DNS
+			$NIC_Info[$NIC_ID][7] = $NIC_MAC
+		Next
+		Return $NIC_Info
+	Else
+		Return $NIC_Info
+	EndIf
+EndFunc   ;==>_NetworkAdapterInfo
 
 Func _Submit()
 	$cSQL = _MSSQL_Con($sql_ip, $sql_user, $sql_pw, $sql_db)
@@ -227,15 +284,15 @@ Func _Submit()
 				$mobile & "', '" & _
 				$telephone & "', '" & _
 				$domain & "', '" & _
-				$aNicconfig[1][3] & "', '" & $aNicconfig[1][4] & "', '" & $aNicconfig[1][0] & "', '" & $aNicconfig[1][2] & "', '" & $aNicconfig[1][1] & "', '" & $aNicconfig[1][5] & "', '" & _
-				$aNicconfig[2][3] & "', '" & $aNicconfig[2][4] & "', '" & $aNicconfig[2][0] & "', '" & $aNicconfig[2][2] & "', '" & $aNicconfig[2][1] & "', '" & $aNicconfig[2][5] & "', '" & _
-				$aNicconfig[3][3] & "', '" & $aNicconfig[3][4] & "', '" & $aNicconfig[3][0] & "', '" & $aNicconfig[3][2] & "', '" & $aNicconfig[3][1] & "', '" & $aNicconfig[3][5] & "', '" & _
-				$aNicconfig[4][3] & "', '" & $aNicconfig[4][4] & "', '" & $aNicconfig[4][0] & "', '" & $aNicconfig[4][2] & "', '" & $aNicconfig[4][1] & "', '" & $aNicconfig[4][5] & "', '" & _
-				$aNicconfig[5][3] & "', '" & $aNicconfig[5][4] & "', '" & $aNicconfig[5][0] & "', '" & $aNicconfig[5][2] & "', '" & $aNicconfig[5][1] & "', '" & $aNicconfig[5][5] & "', '" & _
-				$aNicconfig[6][3] & "', '" & $aNicconfig[6][4] & "', '" & $aNicconfig[6][0] & "', '" & $aNicconfig[6][2] & "', '" & $aNicconfig[6][1] & "', '" & $aNicconfig[6][5] & "', '" & _
-				$aNicconfig[7][3] & "', '" & $aNicconfig[7][4] & "', '" & $aNicconfig[7][0] & "', '" & $aNicconfig[7][2] & "', '" & $aNicconfig[7][1] & "', '" & $aNicconfig[7][5] & "', '" & _
-				$aNicconfig[8][3] & "', '" & $aNicconfig[8][4] & "', '" & $aNicconfig[8][0] & "', '" & $aNicconfig[8][2] & "', '" & $aNicconfig[8][1] & "', '" & $aNicconfig[8][5] & "', '" & _
-				$aNicconfig[9][3] & "', '" & $aNicconfig[9][4] & "', '" & $aNicconfig[9][0] & "', '" & $aNicconfig[9][2] & "', '" & $aNicconfig[9][1] & "', '" & $aNicconfig[9][5] & "', '" & _
+				$aNicconfig[1][1] & "', '" & $aNicconfig[1][2] & "', '" & $aNicconfig[1][3] & "', '" & $aNicconfig[1][4] & "', '" & $aNicconfig[1][5] & "', '" & $aNicconfig[1][6] & "', '" & $aNicconfig[1][7] & "', '" & _
+				$aNicconfig[2][1] & "', '" & $aNicconfig[2][2] & "', '" & $aNicconfig[2][3] & "', '" & $aNicconfig[2][4] & "', '" & $aNicconfig[2][5] & "', '" & $aNicconfig[2][6] & "', '" & $aNicconfig[2][7] & "', '" & _
+				$aNicconfig[3][1] & "', '" & $aNicconfig[3][2] & "', '" & $aNicconfig[3][3] & "', '" & $aNicconfig[3][4] & "', '" & $aNicconfig[3][5] & "', '" & $aNicconfig[3][6] & "', '" & $aNicconfig[3][7] & "', '" & _
+				$aNicconfig[4][1] & "', '" & $aNicconfig[4][2] & "', '" & $aNicconfig[4][3] & "', '" & $aNicconfig[4][4] & "', '" & $aNicconfig[4][5] & "', '" & $aNicconfig[4][6] & "', '" & $aNicconfig[4][7] & "', '" & _
+				$aNicconfig[5][1] & "', '" & $aNicconfig[5][2] & "', '" & $aNicconfig[5][3] & "', '" & $aNicconfig[5][4] & "', '" & $aNicconfig[5][5] & "', '" & $aNicconfig[5][6] & "', '" & $aNicconfig[5][7] & "', '" & _
+				$aNicconfig[6][1] & "', '" & $aNicconfig[6][2] & "', '" & $aNicconfig[6][3] & "', '" & $aNicconfig[6][4] & "', '" & $aNicconfig[6][5] & "', '" & $aNicconfig[6][6] & "', '" & $aNicconfig[6][7] & "', '" & _
+				$aNicconfig[7][1] & "', '" & $aNicconfig[7][2] & "', '" & $aNicconfig[7][3] & "', '" & $aNicconfig[7][4] & "', '" & $aNicconfig[7][5] & "', '" & $aNicconfig[7][6] & "', '" & $aNicconfig[7][7] & "', '" & _
+				$aNicconfig[8][1] & "', '" & $aNicconfig[8][2] & "', '" & $aNicconfig[8][3] & "', '" & $aNicconfig[8][4] & "', '" & $aNicconfig[8][5] & "', '" & $aNicconfig[8][6] & "', '" & $aNicconfig[8][7] & "', '" & _
+				$aNicconfig[9][1] & "', '" & $aNicconfig[9][2] & "', '" & $aNicconfig[9][3] & "', '" & $aNicconfig[9][4] & "', '" & $aNicconfig[9][5] & "', '" & $aNicconfig[9][6] & "', '" & $aNicconfig[9][7] & "', '" & _
 				@YEAR & "-" & @MON & "-" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC & "'")
 		If $bSQL Then
 			MsgBox(0, "成功", "信息已写入数据库，请勿重复提交")
@@ -248,67 +305,21 @@ Func _Submit()
 			IniWrite("info.ini", "UserInfo", "title", $title)
 			IniWrite("info.ini", "UserInfo", "mobile", $mobile)
 			IniWrite("info.ini", "UserInfo", "elephone", $telephone)
-			IniWrite("info.ini", "IP", "IP1", $aNicconfig[1][3])
-			IniWrite("info.ini", "IP", "MASK1", $aNicconfig[1][4])
-			IniWrite("info.ini", "IP", "GateWay1", $aNicconfig[1][0])
-			IniWrite("info.ini", "IP", "GWMitic1", $aNicconfig[1][2])
-			IniWrite("info.ini", "IP", "DNS1", $aNicconfig[1][1])
-			IniWrite("info.ini", "IP", "MAC1", $aNicconfig[1][5])
-			IniWrite("info.ini", "IP", "IP2", $aNicconfig[2][3])
-			IniWrite("info.ini", "IP", "MASK2", $aNicconfig[2][4])
-			IniWrite("info.ini", "IP", "GateWay2", $aNicconfig[2][0])
-			IniWrite("info.ini", "IP", "GWMitic2", $aNicconfig[2][2])
-			IniWrite("info.ini", "IP", "DNS2", $aNicconfig[2][1])
-			IniWrite("info.ini", "IP", "MAC2", $aNicconfig[2][5])
-			IniWrite("info.ini", "IP", "IP3", $aNicconfig[3][3])
-			IniWrite("info.ini", "IP", "MASK3", $aNicconfig[3][4])
-			IniWrite("info.ini", "IP", "GateWay3", $aNicconfig[3][0])
-			IniWrite("info.ini", "IP", "GWMitic3", $aNicconfig[3][2])
-			IniWrite("info.ini", "IP", "DNS3", $aNicconfig[3][1])
-			IniWrite("info.ini", "IP", "MAC3", $aNicconfig[3][5])
-			IniWrite("info.ini", "IP", "IP4", $aNicconfig[4][3])
-			IniWrite("info.ini", "IP", "MASK4", $aNicconfig[4][4])
-			IniWrite("info.ini", "IP", "GateWay4", $aNicconfig[4][0])
-			IniWrite("info.ini", "IP", "GWMitic4", $aNicconfig[4][2])
-			IniWrite("info.ini", "IP", "DNS4", $aNicconfig[4][1])
-			IniWrite("info.ini", "IP", "MAC4", $aNicconfig[4][5])
-			IniWrite("info.ini", "IP", "IP5", $aNicconfig[5][3])
-			IniWrite("info.ini", "IP", "MASK5", $aNicconfig[5][4])
-			IniWrite("info.ini", "IP", "GateWay5", $aNicconfig[5][0])
-			IniWrite("info.ini", "IP", "GWMitic5", $aNicconfig[5][2])
-			IniWrite("info.ini", "IP", "DNS5", $aNicconfig[5][1])
-			IniWrite("info.ini", "IP", "MAC5", $aNicconfig[5][5])
-			IniWrite("info.ini", "IP", "IP6", $aNicconfig[6][3])
-			IniWrite("info.ini", "IP", "MASK6", $aNicconfig[6][4])
-			IniWrite("info.ini", "IP", "GateWay6", $aNicconfig[6][0])
-			IniWrite("info.ini", "IP", "GWMitic6", $aNicconfig[6][2])
-			IniWrite("info.ini", "IP", "DNS6", $aNicconfig[6][1])
-			IniWrite("info.ini", "IP", "MAC6", $aNicconfig[6][5])
-			IniWrite("info.ini", "IP", "IP7", $aNicconfig[7][3])
-			IniWrite("info.ini", "IP", "MASK7", $aNicconfig[7][4])
-			IniWrite("info.ini", "IP", "GateWay7", $aNicconfig[7][0])
-			IniWrite("info.ini", "IP", "GWMitic7", $aNicconfig[7][2])
-			IniWrite("info.ini", "IP", "DNS7", $aNicconfig[7][1])
-			IniWrite("info.ini", "IP", "MAC7", $aNicconfig[7][5])
-			IniWrite("info.ini", "IP", "IP8", $aNicconfig[8][3])
-			IniWrite("info.ini", "IP", "MASK8", $aNicconfig[8][4])
-			IniWrite("info.ini", "IP", "GateWay8", $aNicconfig[8][0])
-			IniWrite("info.ini", "IP", "GWMitic8", $aNicconfig[8][2])
-			IniWrite("info.ini", "IP", "DNS8", $aNicconfig[8][1])
-			IniWrite("info.ini", "IP", "MAC8", $aNicconfig[8][5])
-			IniWrite("info.ini", "IP", "IP9", $aNicconfig[9][3])
-			IniWrite("info.ini", "IP", "MASK9", $aNicconfig[9][4])
-			IniWrite("info.ini", "IP", "GateWay9", $aNicconfig[9][0])
-			IniWrite("info.ini", "IP", "GWMitic9", $aNicconfig[9][2])
-			IniWrite("info.ini", "IP", "DNS9", $aNicconfig[9][1])
-			IniWrite("info.ini", "IP", "MAC9", $aNicconfig[9][5])
+			For $i = 1 To $aNicconfig[0][0] Step 1
+				IniWrite("info.ini", "IP", "Model" & $aNicconfig[$i][0], $aNicconfig[$i][1])
+				IniWrite("info.ini", "IP", "IP" & $aNicconfig[$i][0], $aNicconfig[$i][2])
+				IniWrite("info.ini", "IP", "MASK" & $aNicconfig[$i][0], $aNicconfig[$i][3])
+				IniWrite("info.ini", "IP", "GateWay" & $aNicconfig[$i][0], $aNicconfig[$i][4])
+				IniWrite("info.ini", "IP", "GWMitic" & $aNicconfig[$i][0], $aNicconfig[$i][5])
+				IniWrite("info.ini", "IP", "DNS" & $aNicconfig[$i][0], $aNicconfig[$i][6])
+				IniWrite("info.ini", "IP", "MAC" & $aNicconfig[$i][0], $aNicconfig[$i][7])
+			Next
 			Exit
 		Else
 			MsgBox(0, "添加记录失败", "添加记录失败，请重试！")
 			_UpdateOutput()
 			GUICtrlSetState($idNext, $GUI_ENABLE)
 		EndIf
-
 	EndIf
 	_MSSQL_End($cSQL)
 EndFunc   ;==>_Submit
@@ -328,4 +339,5 @@ Func MyErrFunc()
 			)
 	SetError(1) ; to check for after this function returns
 EndFunc   ;==>MyErrFunc
+
 
