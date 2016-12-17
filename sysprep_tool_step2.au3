@@ -28,19 +28,19 @@ Next
 Global $aDisk = DriveGetDrive($DT_FIXED)
 For $i = 1 To $aDisk[0]
 	If $aDisk[$i] <> @HomeDrive And DriveGetFileSystem($aDisk[$i]) = $DT_NTFS Then
+;~ 	If $aDisk[$i] <> @HomeDrive And DriveGetFileSystem($aDisk[$i]) = $DT_NTFS And $aDisk[$i] <> "D:" Then
 		ToolTip("！！！正在处理 " & StringUpper($aDisk[$i]) & "\ 文件权限。请不要重启！！！" & @CR & @CR & "请设置主机名为：" & $sHostname & @CR & @CR & "请设置IP:" & @CR & $sIP, @DesktopWidth - 500, 100, "必要的文件处理等", 2)
 		DirRemove($aDisk[$i] & "\$Recycle.Bin\", $DIR_REMOVE)
 		DirRemove($aDisk[$i] & "\RECYCLER\", $DIR_REMOVE)
-		_GrantAllAccess($aDisk[$i])
+		If Not _GrantAllAccess($aDisk[$i]) Then MsgBox(0, "请注意", "分区 " & $aDisk[$i] & " 根目录权限获取异常。")
 		DirRemove($aDisk[$i] & "\$Recycle.Bin", $DIR_REMOVE)
 		DirRemove($aDisk[$i] & "\RECYCLER", $DIR_REMOVE)
 	EndIf
 Next
-ToolTip("！！！正在处理 “Chrome绿色版” 文件权限。请不要重启！！！" & @CR & @CR & "请设置主机名为：" & $sHostname & @CR & @CR & "请设置IP:" & @CR & $sIP, @DesktopWidth - 500, 100, "必要的文件处理等", 2)
-_GrantAllAccess("C:\Program Files\Chrome")
-_GrantAllAccess("C:\Program Files (x86)\Chrome")
-ToolTip("！！！正在处理 “公用文件夹” 文件权限。请不要重启！！！" & @CR & @CR & "请设置主机名为：" & $sHostname & @CR & @CR & "请设置IP:" & @CR & $sIP, @DesktopWidth - 500, 100, "必要的文件处理等", 2)
-_GrantAllAccess("C:\Users\Public")
+ToolTip("！！！正在处理 C:\Program Files\Chrome 文件权限。请不要重启！！！" & @CR & @CR & "请设置主机名为：" & $sHostname & @CR & @CR & "请设置IP:" & @CR & $sIP, @DesktopWidth - 500, 100, "必要的文件处理等", 2)
+If Not _GrantAllAccess("C:\Program Files\Chrome") Or Not _GrantAllAccess("C:\Program Files (x86)\Chrome") Then MsgBox(0, "请注意", "Chrome 文件夹权限获取异常。")
+ToolTip("！！！正在处理 " & @HomeDrive & "\Users\Public 文件权限。请不要重启！！！" & @CR & @CR & "请设置主机名为：" & $sHostname & @CR & @CR & "请设置IP:" & @CR & $sIP, @DesktopWidth - 500, 100, "必要的文件处理等", 2)
+If Not _GrantAllAccess(@HomeDrive & "\Users\Public") Then MsgBox(0, "请注意", "文件夹 " & @HomeDrive & "\Users\Public 权限获取异常。")
 ToolTip("请设置主机名为：" & $sHostname & @CR & @CR & "请设置IP:" & @CR & $sIP & @CR & "文件权限处理完毕，设置完主机名和IP地址后，请重启后再安装软硬件。", @DesktopWidth - 500, 100, "必要的文件处理等", 2)
 While 1
 	Sleep(5000)
